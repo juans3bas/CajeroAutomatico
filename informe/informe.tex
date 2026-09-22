@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black}
+
+\titleformat{\section}{\normalfont\Large\bfseries\color{black!85}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{black!75}}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.8em}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
+
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{Taller Cajero Automático}
+\fancyhead[R]{\thepage}
+
+\newcommand{\diagrama}[3]{%
+  \subsection{#1}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=#3\textwidth]{figuras/#2}
+  \end{figure}
+}
+
+\renewcommand{\contentsname}{Índice}
+
+\begin{document}
+
+% ---------------- PORTADA ----------------
+\begin{titlepage}
+    \centering
+    \vspace*{1.8cm}
+    {\large\bfseries UNIVERSIDAD DISTRITAL FRANCISCO JOSÉ DE CALDAS\par}
+    \vspace{2cm}
+
+    \rule{\textwidth}{0.8pt}\par
+    \vspace{0.6cm}
+    {\Huge\bfseries Taller Cajero Automático\par}
+    \vspace{0.4cm}
+    {\Large Modelado UML de un Sistema de Cajero Automático\par}
+    \vspace{0.6cm}
+    \rule{\textwidth}{0.8pt}\par
+
+    \vspace{2.5cm}
+    {\large\bfseries Programación Avanzada\par}
+    \vspace{0.2cm}
+    {\large Grupo: 83\par}
+
+    \vspace{2cm}
+    \begin{tabular}{rl}
+        \textbf{Estudiantes:} & Juan Sebastian Vasquez Ortiz — 20242020285 \\
+         & Juan Jose Zuñiga Murcia — 20251020043 \\[4pt]
+        \textbf{Profesor:} & José David Álvarez \\[4pt]
+        \textbf{Asignatura:} & Programación Avanzada \\
+    \end{tabular}
+
+    \vfill
+    {\large 21 de septiembre de 2026\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ---------------- INTRODUCCIÓN ----------------
+\section{Introducción}
+
+Este informe presenta el modelado UML del sistema \textit{Cajero Automático} desarrollado en Java (Swing), a partir del código fuente ya implementado y funcional. Se incluyen los nueve diagramas solicitados en la guía del taller, construidos con base en las clases reales del proyecto, seguidos de una explicación del funcionamiento del programa.
+
+% ---------------- DIAGRAMAS ----------------
+\section{Diagramas UML}
+
+\diagrama{Modelo de Negocio}{1_modelo_de_negocio.png}{0.85}
+Representa los conceptos del dominio y sus relaciones: un \textit{Cliente} es titular de una o varias \textit{Cuentas}, cada \textit{Cuenta} tiene asociada una \textit{Tarjeta}, y el \textit{Banco} agrupa el conjunto de clientes y cuentas que administra el \textit{Cajero}.
+
+\diagrama{Diagrama de Casos de Uso}{2_diagrama_casos_de_uso.png}{0.9}
+Identifica dos actores: el \textbf{Cliente}, que retira y deposita dinero; y el \textbf{Administrador}, que recarga efectivo del cajero y desbloquea tarjetas. Los casos de uso del cliente dependen de \textit{Validar tarjeta y PIN}, y este a su vez puede derivar en \textit{Bloquear tarjeta} tras 3 intentos fallidos (relaciones \texttt{«include»}/\texttt{«extend»}).
+
+\diagrama{Diagrama de Clases}{3_diagrama_clases.png}{1.0}
+Muestra la estructura estática del sistema: \texttt{Main} inicia \texttt{InterfazCajero}, que utiliza \texttt{ServicioCajero} (la lógica de negocio) para operar sobre \texttt{Banco}, \texttt{Cajero}, \texttt{Cliente}, \texttt{Cuenta} y \texttt{Tarjeta}. \texttt{DatosIniciales} precarga los clientes de prueba y \texttt{ResultadoOperacion} encapsula el resultado (éxito/error) de cada operación.
+
+\diagrama{Diagrama de Estados}{4_diagrama_estados.png}{0.95}
+Describe el ciclo de vida de una \texttt{Tarjeta}: inicia en estado \textbf{Activa}; cada PIN incorrecto incrementa \texttt{intentosFallidos}, y al llegar a 3 pasa a \textbf{Bloqueada} (\texttt{valida = false}); el método \texttt{desbloquear()} la regresa a \textbf{Activa} reiniciando el contador.
+
+\diagrama{Diagrama de Actividad}{5_diagrama_actividad.png}{0.95}
+Detalla el flujo de una operación típica (por ejemplo, un retiro): ingreso de tarjeta, validación de PIN (con reintentos y bloqueo), selección de operación, validación de reglas de negocio (saldo, límite diario, efectivo disponible en el cajero) y despliegue del resultado.
+
+\diagrama{Diagrama de Secuencia}{6_diagrama_secuencia.png}{1.0}
+Ilustra la interacción temporal entre \texttt{Cliente}, \texttt{InterfazCajero}, \texttt{ServicioCajero}, \texttt{Tarjeta}, \texttt{Cuenta}, \texttt{Banco} y \texttt{Cajero} durante un retiro exitoso: desde el login hasta la actualización del saldo y la entrega del efectivo.
+
+\diagrama{Diagrama de Colaboración}{7_diagrama_colaboracion.png}{1.0}
+Presenta la misma operación de retiro que el diagrama de secuencia, pero enfatizando los enlaces entre objetos y el orden numerado de los mensajes en lugar de la línea de tiempo.
+
+\diagrama{Diagrama de Componentes}{8_diagrama_componentes.png}{0.95}
+Agrupa el sistema en seis componentes: \textit{Arranque (Main)}, \textit{Interfaz Gráfica}, \textit{Datos Iniciales}, \textit{Lógica de Negocio}, \textit{Modelo de Dominio} y \textit{Banco y Cajero}, con las dependencias de invocación entre ellos.
+
+\diagrama{Diagrama de Despliegue}{9_diagrama_despliegue.png}{0.85}
+El sistema corre en un único nodo (\textit{Computador del cliente}), sin servidor ni base de datos: es una aplicación de escritorio que carga sus datos de prueba en memoria al iniciar y los pierde al cerrarse.
+
+% ---------------- FUNCIONAMIENTO ----------------
+\section{Funcionamiento del Programa}
+
+Al iniciar, \texttt{Main} carga \texttt{DatosIniciales} (tres clientes de prueba con tarjeta, PIN y saldo precargados) y abre la ventana principal (\texttt{InterfazCajero}).
+
+\textbf{Autenticación.} El usuario ingresa el número de tarjeta y el PIN. \texttt{ServicioCajero} valida ambos contra los datos del banco. Si el PIN es incorrecto, se incrementa el contador de intentos fallidos de la tarjeta; al tercer fallo la tarjeta se bloquea (\texttt{valida = false}) y deja de aceptar operaciones hasta ser desbloqueada por un administrador.
+
+\textbf{Operaciones del cliente.} Con sesión activa, el menú ofrece dos operaciones (además de cerrar sesión):
+\begin{itemize}[nosep]
+    \item \textbf{Retirar dinero}: se valida que el monto sea múltiplo de \$10.000, que no supere el saldo disponible ni el límite diario, y que el cajero tenga efectivo suficiente. El saldo antes y después del retiro se muestra como confirmación.
+    \item \textbf{Depositar dinero}: se valida que el monto sea múltiplo de \$10.000 y positivo; se actualiza el saldo de la cuenta.
+\end{itemize}
+
+\textbf{Panel de administrador.} Tras autenticarse (usuario y contraseña), el administrador puede \textbf{recargar el efectivo} del cajero (respetando su capacidad máxima de \$500.000.000) y \textbf{desbloquear tarjetas} que quedaron bloqueadas por PIN incorrecto.
+
+\textbf{Por qué números de tarjeta arbitrarios no funcionan.} El sistema no genera ni acepta tarjetas al azar: \texttt{Banco} solo reconoce las tarjetas precargadas por \texttt{DatosIniciales} al iniciar el programa. Cualquier número distinto a los de prueba no existe en memoria y por lo tanto \texttt{ServicioCajero} responde que la tarjeta no pertenece al banco.
+
+% ---------------- CONCLUSIÓN ----------------
+\section{Conclusión}
+
+El sistema implementa correctamente las reglas de negocio de un cajero automático básico (autenticación con bloqueo por intentos fallidos, límites de retiro y control de efectivo), y los diagramas UML presentados reflejan fielmente la estructura y el comportamiento del código fuente actual.
+
+\end{document}
